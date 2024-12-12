@@ -1,12 +1,12 @@
 import React from "react";
 
-//INTERNAL IMPORT
-import { BlogDetailOne, BlogDetailTwo } from "../PageComponents/BlogDetail";
-import { Header, Footer, Copyright } from "../PageComponents/Components";
+// INTERNAL IMPORT
+import { BlogDetailOne, BlogDetailTwo } from "../PageComponents/BlogDetail"; // Make sure this path is correct
+import { Header, Footer, Copyright } from "../PageComponents/Components"; // Ensure this path is correct as well
 
-const blogDetail = () => {
+const BlogDetail = () => {
   return (
-    <div class="template-color-1 nft-body-connect">
+    <div className="template-color-1 nft-body-connect">
       <Header />
       <BlogDetailOne />
       <BlogDetailTwo />
@@ -16,4 +16,4 @@ const blogDetail = () => {
   );
 };
 
-export default blogDetail;
+export default BlogDetail;

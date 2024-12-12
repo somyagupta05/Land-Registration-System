@@ -17,7 +17,8 @@ const Footer = () => {
                   </a>
                 </div>
                 <p class="rn-footer-describe">
-                  Created with the collaboration of IIIT UNA (REMS Using BlockChain)
+                  Created with the collaboration of IIIT UNA (REMS Using
+                  BlockChain)
                 </p>
               </div>
               <div class="widget-bottom mt--40 pt--40">

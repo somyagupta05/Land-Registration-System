@@ -2,26 +2,18 @@ import React, { useState } from "react";
 import { ethers } from "ethers";
 import axios from "axios";
 
-//INTERNAL IMPORT
+// INTERNAL IMPORTS
 import { Loader } from "../Components";
 import { CreateThree } from ".";
 import { useStateContext } from "../../context";
-import { checkIfImage } from "../../utils";
 
-const categories = [
-  "Housing",
-  "Rental",
-  "Farmhouse",
-  "Office",
-  "Commercial",
-  "Country",
-];
+const categories = ["Agricultural", "Commercial", "Residential", "Flat"];
 
 const CreateTwo = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [properties, setProperties] = useState([]);
+  const [properties, setProperties] = useState([]); // Track added properties
   const [file, setFile] = useState(null);
-  const [diplayImg, setDiplayImg] = useState(null);
+  const [displayImg, setDisplayImg] = useState(null);
   const [fileName, setFileName] = useState("Upload Image");
 
   const { currentAccount, createPropertyFunction } = useStateContext();
@@ -39,55 +31,7 @@ const CreateTwo = () => {
     setForm({ ...form, [fileName]: e.target.value });
   };
 
-  // const handleSubmit = async () => {
-  //   setIsLoading(true);
-  //   checkIfImage(form.images, async (exists) => {
-  //     if (exists) {
-  //       await createPropertyFunction({
-  //         ...form,
-  //         price: ethers.utils.parseUnits(form.price, 18),
-  //       });
-  //       setIsLoading(false);
-  //     } else {
-  //       alert("Provide valid image URL");
-  //       setForm({ ...form, images: "" });
-  //     }
-  //   });
-  // };
-
-  //NEW
-  const handleSubmit = async () => {
-    setIsLoading(true);
-
-    const {
-      propertyTitle,
-      description,
-      category,
-      price,
-      images,
-      propertyAddress,
-    } = form;
-
-    console.log(
-      propertyTitle,
-      description,
-      category,
-      price,
-      images,
-      propertyAddress
-    );
-
-    if (images || propertyTitle || price || category || description) {
-      await createPropertyFunction({
-        ...form,
-        price: ethers?.utils?.parseUnits(form?.price, 18),
-      });
-      setIsLoading(false);
-    } else {
-      console.log("provide detail");
-    }
-  };
-
+  // Handle image upload to Pinata
   const uploadToPinata = async () => {
     setFileName("Image Uploading...");
     if (file) {
@@ -100,63 +44,91 @@ const CreateTwo = () => {
           url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
           data: formData,
           headers: {
-            Authorization: Bearer + process.env.Pinata_URL,
+            Authorization: `Bearer ${process.env.PINATA_API_KEY}`,
           },
         });
         const ImgHash = `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
 
-        console.log(response);
-
-        console.log(ImgHash);
+        console.log("Image uploaded to Pinata: ", ImgHash);
         setForm({ ...form, images: ImgHash });
         setFileName("Image Uploaded");
-        return ImgHash;
       } catch (error) {
         alert("Unable to upload image to Pinata");
       }
     }
   };
+
   const retrieveFile = (event) => {
     const data = event.target.files[0];
-
     const reader = new window.FileReader();
     reader.readAsArrayBuffer(data);
 
     reader.onloadend = () => {
       setFile(event.target.files[0]);
-
       if (event.target.files && event.target.files[0]) {
-        setDiplayImg(URL.createObjectURL(event.target.files[0]));
+        setDisplayImg(URL.createObjectURL(event.target.files[0]));
       }
     };
-
     event.preventDefault();
+  };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+
+    const {
+      propertyTitle,
+      description,
+      category,
+      price,
+      images,
+      propertyAddress,
+    } = form;
+
+    if (images || propertyTitle || price || category || description) {
+      await createPropertyFunction({
+        ...form,
+        price: ethers?.utils?.parseUnits(form?.price, 18),
+      });
+
+      // Add the newly created property to the list
+      setProperties([
+        ...properties,
+        {
+          ...form,
+          price: parseFloat(form.price),
+          images: displayImg || images,
+        },
+      ]);
+
+      setIsLoading(false);
+    } else {
+      console.log("Provide all details.");
+    }
   };
 
   return (
     <>
-      <div class="creat-collection-area pt--80">
-        <div class="container">
-          <div class="row g-5 ">
-            <div class="col-lg-3 offset-1 ml_md--0 ml_sm--0">
-              <div class="collection-single-wized banner">
-                <label class="title required">Property image</label>
-
-                <div class="create-collection-input logo-image">
-                  <div class="logo-c-image logo">
+      <div className="creat-collection-area pt--80">
+        <div className="container">
+          <div className="row g-5">
+            <div className="col-lg-3 offset-1 ml_md--0 ml_sm--0">
+              <div className="collection-single-wized banner">
+                <label className="title required">Property image</label>
+                <div className="create-collection-input logo-image">
+                  <div className="logo-c-image logo">
                     <img
                       id="rbtinput1"
-                      src={diplayImg || "/profile/profile-01.jpg"}
+                      src={displayImg || "/profile/profile-01.jpg"}
                       alt="Profile-NFT"
                     />
-                    <label for="fatima" title="No File Choosen">
-                      <span class="text-center color-white">
-                        <i class="feather-edit"></i>
+                    <label htmlFor="fatima" title="No File Chosen">
+                      <span className="text-center color-white">
+                        <i className="feather-edit"></i>
                       </span>
                     </label>
                   </div>
-                  <div class="button-area">
-                    <div class="brows-file-wrapper">
+                  <div className="button-area">
+                    <div className="brows-file-wrapper">
                       <input
                         name="fatima"
                         id="fatima"
@@ -169,7 +141,7 @@ const CreateTwo = () => {
                 {file && (
                   <a
                     onClick={() => uploadToPinata()}
-                    class="btn btn-primary-alta btn-large"
+                    className="btn btn-primary-alta btn-large"
                   >
                     {fileName}
                   </a>
@@ -177,18 +149,18 @@ const CreateTwo = () => {
               </div>
             </div>
 
-            <div class="col-lg-7">
-              <div class="create-collection-form-wrapper">
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div class="collection-single-wized">
-                      <label for="name" class="title required">
+            <div className="col-lg-7">
+              <div className="create-collection-form-wrapper">
+                <div className="row">
+                  <div className="col-lg-6">
+                    <div className="collection-single-wized">
+                      <label htmlFor="name" className="title required">
                         Property Title
                       </label>
-                      <div class="create-collection-input">
+                      <div className="create-collection-input">
                         <input
                           id="name"
-                          class="name"
+                          className="name"
                           type="text"
                           required
                           placeholder="propertyTitle"
@@ -199,24 +171,20 @@ const CreateTwo = () => {
                       </div>
                     </div>
                   </div>
-                  <div class="col-lg-12">
-                    <div class="collection-single-wized">
-                      <label class="title">Category</label>
-                      <div class="create-collection-input">
-                        <div class="nice-select mb--30" tabindex="0">
-                          <span class="current">Add Category</span>
-                          <ul class="list">
+                  <div className="col-lg-12">
+                    <div className="collection-single-wized">
+                      <label className="title">Category</label>
+                      <div className="create-collection-input">
+                        <div className="nice-select mb--30" tabIndex="0">
+                          <span className="current">Add Category</span>
+                          <ul className="list">
                             {categories.map((el, i) => (
                               <li
                                 key={i + 1}
                                 onClick={() =>
-                                  setForm({
-                                    ...form,
-                                    category: el,
-                                  })
+                                  setForm({ ...form, category: el })
                                 }
-                                data-value="Housing"
-                                class="option"
+                                className="option"
                               >
                                 {el}
                               </li>
@@ -226,15 +194,15 @@ const CreateTwo = () => {
                       </div>
                     </div>
                   </div>
-                  <div class="col-lg-12">
-                    <div class="collection-single-wized">
-                      <label for="description" class="title">
+                  <div className="col-lg-12">
+                    <div className="collection-single-wized">
+                      <label htmlFor="description" className="title">
                         Description
                       </label>
-                      <div class="create-collection-input">
+                      <div className="create-collection-input">
                         <textarea
                           id="description"
-                          class="text-area"
+                          className="text-area"
                           placeholder="description"
                           onChange={(e) =>
                             handleFormFieldChange("description", e)
@@ -243,15 +211,15 @@ const CreateTwo = () => {
                       </div>
                     </div>
                   </div>
-                  <div class="col-lg-6">
-                    <div class="collection-single-wized">
-                      <label for="earning" class="title">
+                  <div className="col-lg-6">
+                    <div className="collection-single-wized">
+                      <label htmlFor="earning" className="title">
                         Price
                       </label>
-                      <div class="create-collection-input">
+                      <div className="create-collection-input">
                         <input
                           id="earning"
-                          class="url"
+                          className="url"
                           type="number"
                           placeholder="price"
                           onChange={(e) => handleFormFieldChange("price", e)}
@@ -259,15 +227,15 @@ const CreateTwo = () => {
                       </div>
                     </div>
                   </div>
-                  <div class="col-lg-6">
-                    <div class="collection-single-wized">
-                      <label for="wallet" class="title">
+                  <div className="col-lg-6">
+                    <div className="collection-single-wized">
+                      <label htmlFor="wallet" className="title">
                         Property Address
                       </label>
-                      <div class="create-collection-input">
+                      <div className="create-collection-input">
                         <input
                           id="wallet"
-                          class="url"
+                          className="url"
                           type="text"
                           placeholder="propertyAddress"
                           onChange={(e) =>
@@ -277,11 +245,11 @@ const CreateTwo = () => {
                       </div>
                     </div>
                   </div>
-                  <div class="col-lg-12">
-                    <div class="button-wrapper">
+                  <div className="col-lg-12">
+                    <div className="button-wrapper">
                       <a
                         onClick={() => handleSubmit()}
-                        class="btn btn-primary btn-large"
+                        className="btn btn-primary btn-large"
                       >
                         {isLoading ? <Loader /> : "Create"}
                       </a>
@@ -291,8 +259,44 @@ const CreateTwo = () => {
               </div>
             </div>
           </div>
+
+          {/* Display Property List */}
+          <div className="col-lg-12">
+            <h3>Property List</h3>
+            <div className="property-list">
+              {properties.map((property, index) => (
+                <div key={index} className="property-item">
+                  <img src={property.images || displayImg} alt="Property" />
+                  <p>
+                    <strong>Title:</strong> {property.propertyTitle}
+                  </p>
+                  <p>
+                    <strong>Price:</strong> {property.price}
+                  </p>
+                  <p>
+                    <strong>Category:</strong> {property.category}
+                  </p>
+                  <p>
+                    <strong>Description:</strong> {property.description}
+                  </p>
+                  <button
+                    className="deleteButton"
+                    onClick={() => {
+                      const updatedProperties = properties.filter(
+                        (_, i) => i !== index
+                      );
+                      setProperties(updatedProperties);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
+
       <CreateThree data={form} />
     </>
   );

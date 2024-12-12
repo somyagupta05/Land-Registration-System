@@ -1,28 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useRouter } from "next/router";
+import { useStateContext } from "../../context";
 import Link from "next/link";
 
-import { useStateContext } from "../../context";
-
 const Header = () => {
-  const { currentAccount, connectWallet, userBlance } = useStateContext();
+  const { currentAccount, connectWallet } = useStateContext();
+  const router = useRouter();
+
+  const handleAddPropertyClick = () => {
+    // Check if we're already on the /add-property page
+    if (router.pathname !== "/add-property") {
+      router.push("/add-property"); // Navigate programmatically if not on the page
+    }
+  };
 
   return (
     <>
-      <header class="rn-header haeder-default header--sticky">
-        <div class="container">
-          <div class="header-inner">
-            <div class="header-left">
-              <div class="logo-thumbnail logo-custom-css">
-                <a class="logo-light" href="/">
+      <header className="rn-header haeder-default header--sticky">
+        <div className="container">
+          <div className="header-inner">
+            <div className="header-left">
+              <div className="logo-thumbnail logo-custom-css">
+                <a className="logo-light" href="/">
                   <img src="/logo/logo.png" alt="nft-logo" />
                 </a>
-                <a class="logo-dark" href="/">
+                <a className="logo-dark" href="/">
                   <img src="/logo/logo.png" alt="nft-logo" />
                 </a>
               </div>
-              <div class="mainmenu-wrapper">
-                <nav id="sideNav" class="mainmenu-nav d-none d-xl-block">
-                  <ul class="mainmenu">
+              <div className="mainmenu-wrapper">
+                <nav id="sideNav" className="mainmenu-nav d-none d-xl-block">
+                  <ul className="mainmenu">
                     <li>
                       <Link href="/">Home</Link>
                     </li>
@@ -30,35 +38,29 @@ const Header = () => {
                       <a href="/about">About</a>
                     </li>
                     <li>
-                      <Link href="/explor">
-                        Explore
-                      </Link>
+                      <Link href="/explor">Explore</Link>
                     </li>
                     <li>
-                      <Link href="/active">
-                        Activity
-                      </Link>
+                      <Link href="/active">Activity</Link>
                     </li>
                     <li>
-                      <Link href="/create">
-                        Create
-                      </Link>
+                      <Link href="/create">Create</Link>
                     </li>
                   </ul>
                 </nav>
               </div>
             </div>
-            <div class="header-right">
-              <div class="setting-option d-none d-lg-block">
-                <form class="search-form-wrapper" action="#">
+            <div className="header-right">
+              <div className="setting-option d-none d-lg-block">
+                <form className="search-form-wrapper" action="#">
                   <input
                     type="search"
                     placeholder="Search Here"
                     aria-label="Search"
                   />
-                  <div class="search-icon">
+                  <div className="search-icon">
                     <button>
-                      <i class="feather-search"></i>
+                      <i className="feather-search"></i>
                     </button>
                   </div>
                 </form>
@@ -68,13 +70,13 @@ const Header = () => {
                 ""
               ) : (
                 <div
-                  class="setting-option header-btn rbt-site-header"
+                  className="setting-option header-btn rbt-site-header"
                   id="rbt-site-header"
                 >
-                  <div class="icon-box">
+                  <div className="icon-box">
                     <button
                       onClick={() => connectWallet()}
-                      class="btn btn-primary-alta btn-small"
+                      className="btn btn-primary-alta btn-small"
                     >
                       Wallet connect
                     </button>
@@ -84,8 +86,8 @@ const Header = () => {
 
               {currentAccount ? (
                 <div>
-                  <div class="setting-option rn-icon-list user-account">
-                    <div class="icon-box">
+                  <div className="setting-option rn-icon-list user-account">
+                    <div className="icon-box">
                       <Link href="/author">
                         <img src="/icons/boy-avater.png" alt="Images" />
                       </Link>
@@ -96,10 +98,20 @@ const Header = () => {
                 ""
               )}
 
-              <div class="setting-option mobile-menu-bar d-block d-xl-none">
-                <div class="hamberger">
-                  <button class="hamberger-button">
-                    <i class="feather-menu"></i>
+              {/* Add Property Button */}
+              <div className="setting-option">
+                <button
+                  onClick={handleAddPropertyClick} // Removed Link and used button directly
+                  className="btn btn-primary-alta btn-small"
+                >
+                  Add Property
+                </button>
+              </div>
+
+              <div className="setting-option mobile-menu-bar d-block d-xl-none">
+                <div className="hamberger">
+                  <button className="hamberger-button">
+                    <i className="feather-menu"></i>
                   </button>
                 </div>
               </div>
@@ -107,54 +119,6 @@ const Header = () => {
           </div>
         </div>
       </header>
-
-      {/* MOBILE MENU */}
-      <div class="popup-mobile-menu">
-        <div class="inner">
-          <div class="header-top">
-            <div class="logo logo-custom-css">
-              <a class="logo-light" href="index.html">
-                <img src="/logo/logo.png" alt="nft-logo" />
-              </a>
-              <a class="logo-dark" href="index.html">
-                <img src="/logo/logo.png" alt="nft-logo" />
-              </a>
-            </div>
-            <div class="close-menu">
-              <button class="close-button">
-                <i class="feather-x"></i>
-              </button>
-            </div>
-          </div>
-          <nav>
-            <ul class="mainmenu">
-              <li>
-                <Link class="nav-link its_new" href="/">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/about">About</Link>
-              </li>
-              <li>
-                <Link class="nav-link its_new" href="/explor">
-                  Explore
-                </Link>
-              </li>
-              <li>
-                <Link class="nav-link its_new" href="active">
-                  Acitivity
-                </Link>
-              </li>
-              <li>
-                <Link class="nav-link its_new" href="/create">
-                  Create
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
     </>
   );
 };
